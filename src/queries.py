@@ -182,3 +182,95 @@ def get_checkout_funnel():
         COUNTIF(purchased = TRUE) AS purchase
     FROM `{PROJECT_ID}.{DATASET_ID}.int_sessions`
     """
+
+def get_funnel_metrics():
+    return f"""
+        WITH funnel AS (
+            SELECT
+                stage,
+                sessions,
+                overall_conversion_rate
+            FROM `{PROJECT_ID}.{DATASET_ID}.mart_funnel`
+        ),
+
+        funnel_with_previous AS (
+            SELECT
+                stage,
+                sessions,
+                overall_conversion_rate,
+                LAG(sessions) OVER (
+                    ORDER BY
+                        CASE stage
+                            WHEN 'Page View' THEN 1
+                            WHEN 'View Item' THEN 2
+                            WHEN 'Add to Cart' THEN 3
+                            WHEN 'Begin Checkout' THEN 4
+                            WHEN 'Purchase' THEN 5
+                        END
+                ) AS previous_sessions
+            FROM funnel
+        )
+
+        SELECT
+            stage,
+            sessions,
+            overall_conversion_rate,
+            CASE
+                WHEN previous_sessions IS NULL THEN 0
+                WHEN previous_sessions = 0 THEN 0
+                ELSE ROUND(
+                    (1 - SAFE_DIVIDE(sessions, previous_sessions)) * 100,
+                    2
+                )
+            END AS stage_dropoff_rate
+        FROM funnel_with_previous
+
+        ORDER BY
+            CASE stage
+                WHEN 'Page View' THEN 1
+                WHEN 'View Item' THEN 2
+                WHEN 'Add to Cart' THEN 3
+                WHEN 'Begin Checkout' THEN 4
+                WHEN 'Purchase' THEN 5
+            END
+    """
+
+
+def get_abandonment_by_device():
+    return f"""
+    SELECT
+        device_category,
+        COUNT(*) AS checkout_sessions,
+        COUNTIF(checkout_abandoned = TRUE) AS abandoned_sessions,
+        ROUND(
+            SAFE_DIVIDE(
+                COUNTIF(checkout_abandoned = TRUE),
+                COUNT(*)
+            ) * 100,
+            2
+        ) AS abandonment_rate
+    FROM `{PROJECT_ID}.{DATASET_ID}.int_sessions`
+    WHERE begin_checkout > 0
+    GROUP BY device_category
+    ORDER BY abandonment_rate DESC
+    """
+
+
+def get_abandonment_by_channel():
+    return f"""
+    SELECT
+        acquisition_channel,
+        COUNT(*) AS checkout_sessions,
+        COUNTIF(purchased = FALSE) AS abandoned_sessions,
+        ROUND(
+            SAFE_DIVIDE(
+                COUNTIF(purchased = FALSE),
+                COUNT(*)
+            ) * 100,
+            2
+        ) AS abandonment_rate
+    FROM `{PROJECT_ID}.{DATASET_ID}.mart_purchase_prediction`
+    WHERE begin_checkout > 0
+    GROUP BY acquisition_channel
+    ORDER BY abandonment_rate DESC
+    """

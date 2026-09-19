@@ -54,7 +54,7 @@ with open(OUTPUT_FILE, "w", encoding="utf-8") as file:
         file.write(f"\nQuestion:\n{case['question']}\n")
 
         try:
-            response = run_agent(
+            response, tool_results = run_agent(
                 question=case["question"],
                 tools=tools,
             )

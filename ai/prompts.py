@@ -52,6 +52,13 @@ For "why" questions:
 
 If the question is unrelated to product analytics,
 do not call any tools.
+
+Data interpretation rules:
+- Use only values returned by tools.
+- Do not invent benchmarks or comparisons.
+- Do not interpret ratios as percentages unless explicitly defined as percentages.
+- Do not infer units that are not provided.
+- Clearly distinguish observed data from interpretation and recommendations.
 """
 
 RAG_CONTEXT_INSTRUCTION = """

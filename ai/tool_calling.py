@@ -25,6 +25,9 @@ def run_agent(
         },
     ]
 
+    # Store tool results so Streamlit can use structured data
+    tool_results = []
+
     for iteration in range(max_iterations):
         print(f"\n--- Agent iteration {iteration + 1} ---")
 
@@ -35,7 +38,7 @@ def run_agent(
 
         # No tool call -> final answer
         if not response.tool_calls:
-            return response
+            return response, tool_results
 
         # Keep assistant's original tool-call message.
         if response.raw_message is not None:
@@ -61,18 +64,27 @@ def run_agent(
 
                 print("Tool executed successfully.")
 
+                tool_results.append(
+                    {
+                        "tool_name": tool_call.name,
+                        "result": tool_result,
+                    }
+                )
+
             except Exception as error:
                 print(
                     "Tool execution failed:",
                     error,
                 )
 
-                return LLMResponse(
+                return (LLMResponse(
                     text=(
                         "I could not retrieve the required analytics data "
                         "because the data tool failed. "
                         f"Tool error: {error}"
                     )
+                    ),
+                    tool_results,
                 )
 
             contents.append(

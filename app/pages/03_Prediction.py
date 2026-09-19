@@ -9,6 +9,11 @@ from src.services import (
     load_purchase_prediction
 )
 
+from ai.tool_calling import run_agent
+from ai.tools.schemas import TOOL_SCHEMAS
+
+tools = list(TOOL_SCHEMAS.values())
+
 prediction_df = load_purchase_prediction()
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -207,238 +212,245 @@ with st.container():
 
 st.divider()
 
+
 with st.container():
     st.subheader("🎯 Predict Purchase Intent")
 
     st.markdown(
-        "Enter session information to estimate the probability of purchase."
+        "Search for a session and let the AI agent analyse its purchase intent."
     )
 
-    left_col, right_col = st.columns(2)
-
-    with left_col:
-
-        session_duration = st.number_input(
-            "Session Duration (sec)",
-            min_value=0.0,
-            value=300.0
-        )
-
-        total_events = st.number_input(
-            "Total Events",
-            min_value=0,
-            value=15
-        )
-
-        total_engagement_time = st.number_input(
-            "Total Engagement Time",
-            min_value=0.0,
-            value=250.0
-        )
-
-        pageviews = st.number_input(
-            "Page Views",
-            min_value=0,
-            value=6
-        )
-
-        unique_pages = st.number_input(
-            "Unique Pages",
-            min_value=0,
-            value=4
-        )
-
-        item_views = st.number_input(
-            "Item Views",
-            min_value=0,
-            value=3
-        )
-
-        searches = st.number_input(
-            "Searches",
-            min_value=0,
-            value=1
-        )
-
-        add_to_cart = st.number_input(
-            "Add to Cart",
-            min_value=0,
-            value=1
-        )
-
-        begin_checkout = st.selectbox(
-            "Checkout Started",
-            [0, 1]
-        )
-    
-    with right_col:
-
-        device = st.selectbox(
-            "Device",
-            [
-                "desktop",
-                "mobile",
-                "tablet"
-            ]
-        )
-
-        operating_system = st.selectbox(
-            "Operating System",
-            [
-                "Windows",
-                "Macintosh",
-                "Android",
-                "iOS"
-            ]
-        )
-
-        country = st.text_input(
-            "Country",
-            value="United States"
-        )
-
-        acquisition_channel = st.selectbox(
-            "Acquisition Channel",
-            [
-                "Google",
-                "Direct",
-                "Other",
-                "Unknown"
-            ]
-        )
-    
-st.divider()
-
-
-if st.button(
-    "🚀 Predict Purchase Intent",
-    use_container_width=True
-):
-    engagement_per_event = (
-        total_engagement_time / total_events
-        if total_events > 0 else 0
+    # Get available session IDs
+    session_ids = (
+        prediction_df["ga_session_id"]
+        .dropna()
+        .astype(int)
+        .unique()
+        .tolist()
     )
 
-    item_view_rate = (
-        item_views / pageviews
-        if pageviews > 0 else 0
+    # Search
+    search_term = st.text_input(
+        "Search Session ID",
+        placeholder="Enter part of a Session ID..."
     )
 
-    checkout_ratio = (
-        begin_checkout / add_to_cart
-        if add_to_cart > 0 else 0
-    )
+    selected_session_id = None
 
-    input_df = pd.DataFrame({
+    if search_term:
 
-        "session_duration_sec":[session_duration],
+        filtered_ids = [
+            session_id
+            for session_id in session_ids
+            if search_term in str(session_id)
+        ]
 
-        "total_events":[total_events],
+        if filtered_ids:
 
-        "total_engagement_time":[total_engagement_time],
+            filtered_ids = filtered_ids[:20]
 
-        "pageviews":[pageviews],
-
-        "unique_pages":[unique_pages],
-
-        "item_views":[item_views],
-
-        "searches":[searches],
-
-        "add_to_cart":[add_to_cart],
-
-        "begin_checkout":[begin_checkout],
-
-        "device_category":[device],
-
-        "operating_system":[operating_system],
-
-        "country":[country],
-
-        "acquisition_channel":[acquisition_channel],
-
-        "engagement_per_event":[engagement_per_event],
-
-        "item_view_rate":[item_view_rate],
-
-        "checkout_ratio":[checkout_ratio]
-
-    })
-
-    with st.expander("View Model Input"):
-        st.dataframe(input_df)
-
-    probability = model.predict_proba(input_df)[0, 1]
-
-    prediction = model.predict(input_df)[0]
-
-    with st.container(border=True):
-        st.subheader("📊 Prediction Result")
-
-        result_col1, result_col2 = st.columns(2)
-
-        with result_col1:
-            st.metric(
-                "Purchase Probability",
-                f"{probability:.1%}"
+            selected_session_id = st.selectbox(
+                "Matching Sessions",
+                filtered_ids
             )
-
-        with result_col2:
-            st.metric(
-                "Predicted Class",
-                "Purchase" if prediction == 1 else "No Purchase"
-            )
-
-        
-        st.caption("Purchase Probability")
-
-        st.progress(probability)
-
-        if probability >= 0.8:
-
-            st.success("🟢 High Purchase Intent")
-            level = "high"
-
-        elif probability >= 0.5:
-
-            st.info("🟡 Medium Purchase Intent")
-            level = "medium"
 
         else:
+            st.warning("No matching sessions found.")
 
-            st.warning("🔴 Low Purchase Intent")
-            level = "low"
+    # Analyze
+    if selected_session_id is not None:
 
-    st.divider()
+        if st.button(
+            "🚀 Analyze Session",
+            use_container_width=True
+        ):
 
-    st.subheader("💡 Recommended Action")
+            question = f"""
+                The user selected session ID {selected_session_id}.
 
-    if level == "high":
+                Analyze the purchase intent of this session.
 
-        st.success("""
-        ### Recommended Action
+                You MUST use the get_purchase_prediction tool
+                with session_id={selected_session_id}.
 
-        - Send personalised promotion
-        - Push reminder notification
-        - Recommend similar products
-        - Prioritise remarketing audience
-        """)
-    elif level == "medium":
+                After receiving the tool result, provide a concise business-oriented analysis with these sections:
 
-        st.info("""
-        ### Recommended Action
+                1. Purchase Intent
+                - Explain the purchase probability and prediction.
 
-        - Continue nurturing
-        - Show personalised homepage
-        - Recommend trending products
-        """)
-    
-    else:
+                2. Key Insight
+                - Identify the most important behavioural signals from the session.
+                - Explain why they may be relevant.
+                - Base all observations strictly on the tool result.
+                - Do not invent benchmarks, averages, or comparisons.
 
-        st.warning("""
-        ### Recommended Action
+                3. Recommended Action
+                - Suggest one or two practical product or business actions based on the observed behaviour.
+                - Clearly distinguish recommendations from observed facts.
 
-        - Increase engagement
-        - Optimise landing page
-        - Improve onboarding experience
-        """)
+                Important data interpretation rules:
+                - Use only the data returned by the tool.
+                - Do not invent information, benchmarks, averages, or comparisons.
+                - Do not interpret a ratio as a percentage unless it is explicitly defined as a percentage.
+                - checkout_ratio = begin_checkout / add_to_cart.
+                - checkout_ratio is a behavioural ratio, not a percentage and not a measure of time.
+                - engagement_per_event = total_engagement_time / total_events.
+                - Do not infer or convert the unit of total_engagement_time unless the unit is explicitly provided.
+                - Do not describe a feature as "high" or "low" unless there is a valid reference point in the available data.
+                - Keep the analysis concise and actionable.
+                - Do not present hypotheses about technical issues or user motivations as established facts. Frame them as hypotheses or areas for investigation.
+                """
+
+            with st.spinner("🤖 AI is analysing the session..."):
+                response, tool_results = run_agent(
+                    question=question,
+                    tools=tools
+                )
+
+            #st.write("DEBUG tool_results:")
+            #st.write(tool_results)
+
+            # Get structured tool result
+            prediction_result = None
+
+            for item in tool_results:
+                if item["tool_name"] == "get_purchase_prediction":
+                    prediction_result = item["result"]
+                    break
+
+            if prediction_result:
+                probability = prediction_result["purchase_probability"]
+                prediction = prediction_result["prediction"]
+                features = prediction_result["session_features"]
+
+                # Calculate intent level
+                if probability >= 0.70:
+                    intent_level = "High"
+                elif probability >= 0.40:
+                    intent_level = "Medium"
+                else:
+                    intent_level = "Low"
+
+                st.subheader("📊 Purchase Intent")
+
+                col1, col2, col3 = st.columns(3)
+
+                with col1:
+                    st.metric(
+                        "Purchase Probability",
+                        f"{probability:.2%}"
+                    )
+
+                with col2:
+                    st.metric(
+                        "Prediction",
+                        "Purchase" if prediction else "No Purchase"
+                    )
+
+                with col3:
+                    st.metric(
+                        "Intent Level",
+                        intent_level
+                    )
+
+                st.subheader("👤 Session Characteristics")
+
+                characteristics = pd.DataFrame(
+                    [
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Session Duration (sec)",
+                            "Value": str(features["session_duration_sec"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Total Events",
+                            "Value": str(features["total_events"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Total Engagement Time",
+                            "Value": str(features["total_engagement_time"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Pageviews",
+                            "Value": str(features["pageviews"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Unique Pages",
+                            "Value": str(features["unique_pages"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Item Views",
+                            "Value": str(features["item_views"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Searches",
+                            "Value": str(features["searches"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Add to Cart",
+                            "Value": str(features["add_to_cart"]),
+                        },
+                        {
+                            "Category": "Session Behaviour",
+                            "Feature": "Begin Checkout",
+                            "Value": str(features["begin_checkout"]),
+                        },
+                        {
+                            "Category": "Derived Features",
+                            "Feature": "Engagement per Event",
+                            "Value": str(
+                                round(features["engagement_per_event"], 3)
+                            ),
+                        },
+                        {
+                            "Category": "Derived Features",
+                            "Feature": "Item View Rate",
+                            "Value": str(
+                                round(features["item_view_rate"], 3)
+                            ),
+                        },
+                        {
+                            "Category": "Derived Features",
+                            "Feature": "Checkout Ratio",
+                            "Value": str(
+                                round(features["checkout_ratio"], 3)
+                            ),
+                        },
+                        {
+                            "Category": "Context",
+                            "Feature": "Device",
+                            "Value": str(features["device_category"]),
+                        },
+                        {
+                            "Category": "Context",
+                            "Feature": "Operating System",
+                            "Value": str(features["operating_system"]),
+                        },
+                        {
+                            "Category": "Context",
+                            "Feature": "Country",
+                            "Value": str(features["country"]),
+                        },
+                        {
+                            "Category": "Context",
+                            "Feature": "Acquisition Channel",
+                            "Value": str(features["acquisition_channel"]),
+                        },
+                    ]
+                )
+
+                st.dataframe(
+                    characteristics,
+                    width="stretch",
+                    hide_index=True,
+                )
+
+            st.subheader("🤖 AI Analysis")
+            st.write(response.text)

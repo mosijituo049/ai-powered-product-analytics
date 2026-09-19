@@ -184,17 +184,59 @@ def get_purchase_prediction(session_id: int) -> dict:
 
     return {
         "session_id": int(session_id),
+
         "prediction": bool(prediction),
-        "purchase_probability": round(float(probability), 4),
+
+        "purchase_probability": round(
+            float(probability),
+            4
+        ),
+
         "session_features": {
+            # Session behaviour
+            "session_duration_sec": float(
+                df.iloc[0]["session_duration_sec"]
+            ),
+            "total_events": int(
+                df.iloc[0]["total_events"]
+            ),
+            "total_engagement_time": float(
+                df.iloc[0]["total_engagement_time"]
+            ),
+            "pageviews": int(
+                df.iloc[0]["pageviews"]
+            ),
+            "unique_pages": int(
+                df.iloc[0]["unique_pages"]
+            ),
+            "item_views": int(
+                df.iloc[0]["item_views"]
+            ),
+            "searches": int(
+                df.iloc[0]["searches"]
+            ),
+            "add_to_cart": int(
+                df.iloc[0]["add_to_cart"]
+            ),
+            "begin_checkout": int(
+                df.iloc[0]["begin_checkout"]
+            ),
+
+            # Derived behavioural features
+            "engagement_per_event": float(
+                df.iloc[0]["engagement_per_event"]
+            ),
+            "item_view_rate": float(
+                df.iloc[0]["item_view_rate"]
+            ),
+            "checkout_ratio": float(
+                df.iloc[0]["checkout_ratio"]
+            ),
+
+            # Context
             "device_category": df.iloc[0]["device_category"],
             "operating_system": df.iloc[0]["operating_system"],
             "country": df.iloc[0]["country"],
             "acquisition_channel": df.iloc[0]["acquisition_channel"],
-            "total_events": int(df.iloc[0]["total_events"]),
-            "pageviews": int(df.iloc[0]["pageviews"]),
-            "item_views": int(df.iloc[0]["item_views"]),
-            "add_to_cart": int(df.iloc[0]["add_to_cart"]),
-            "begin_checkout": int(df.iloc[0]["begin_checkout"]),
         },
     }

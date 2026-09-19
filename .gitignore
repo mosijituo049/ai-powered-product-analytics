@@ -43,3 +43,10 @@ tableau/*.twbx
 
 *.tmp
 *.bak
+
+
+# RAG vector store
+outputs/rag_embeddings.json
+
+# Agent evaluation results
+outputs/agent_tests/

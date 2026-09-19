@@ -123,6 +123,10 @@ def load_funnel():
     )
 
 @st.cache_data(ttl=600,show_spinner=False)
+def load_funnel_metrics():
+    return query_to_dataframe(queries.get_funnel_metrics())
+
+@st.cache_data(ttl=600,show_spinner=False)
 def load_checkout_abandonment():
     return query_to_dataframe(
         queries.get_checkout_abandonment_data()
@@ -132,4 +136,17 @@ def load_checkout_abandonment():
 def load_purchase_prediction():
     return query_to_dataframe(
         queries.get_purchase_prediction_data()
+    )
+
+@st.cache_data(ttl=600, show_spinner=False)
+def load_abandonment_by_device():
+    return query_to_dataframe(
+        queries.get_abandonment_by_device()
+    )
+
+
+@st.cache_data(ttl=600, show_spinner=False)
+def load_abandonment_by_channel():
+    return query_to_dataframe(
+        queries.get_abandonment_by_channel()
     )
