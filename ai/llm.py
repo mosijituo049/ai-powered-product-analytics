@@ -1,18 +1,18 @@
-from google import genai
+import os
 
-from ai.config import GEMINI_API_KEY
-
-
-client = genai.Client(api_key=GEMINI_API_KEY)
+from ai.providers.gemini import GeminiProvider
+from ai.providers.ollama import OllamaProvider
 
 
-def ask_gemini(prompt: str) -> str:
-    response = client.models.generate_content(
-        model="gemini-3.6-flash",
-        contents=prompt,
+def get_llm_provider():
+    provider_name = os.getenv("LLM_PROVIDER", "ollama").lower()
+
+    if provider_name == "gemini":
+        return GeminiProvider()
+
+    if provider_name == "ollama":
+        return OllamaProvider()
+
+    raise ValueError(
+        f"Unsupported LLM provider: {provider_name}"
     )
-
-    if response.text is None:
-        raise ValueError("Gemini returned an empty response.")
-
-    return response.text

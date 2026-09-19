@@ -1,0 +1,67 @@
+[
+  {
+    "id": 1,
+    "name": "Overall checkout abandonment",
+    "question": "What is the overall checkout abandonment rate?",
+    "expected_tools": ["get_checkout_abandonment"],
+    "expected_behavior": "Return the overall checkout abandonment rate from tool data.",
+    "failure_type": null
+  },
+  {
+    "id": 2,
+    "name": "Highest abandonment device",
+    "question": "Which device category has the highest checkout abandonment rate, and what is the overall checkout abandonment rate?",
+    "expected_tools": [
+      "get_abandonment_by_device",
+      "get_checkout_abandonment"
+    ],
+    "expected_behavior": "Identify the device with the highest abandonment rate and report the overall rate accurately.",
+    "failure_type": "numerical_reasoning"
+  },
+  {
+    "id": 3,
+    "name": "Channel abandonment",
+    "question": "What is the checkout abandonment rate by acquisition channel?",
+    "expected_tools": ["get_abandonment_by_channel"],
+    "expected_behavior": "Return the abandonment rate for each acquisition channel.",
+    "failure_type": null
+  },
+  {
+    "id": 4,
+    "name": "Definition question",
+    "question": "What does checkout abandonment mean in e-commerce?",
+    "expected_tools": [],
+    "expected_behavior": "Answer the definition without calling analytics tools.",
+    "failure_type": "tool_selection"
+  },
+  {
+    "id": 5,
+    "name": "Causal question",
+    "question": "Why are users abandoning checkout?",
+    "expected_tools": [],
+    "expected_behavior": "Do not claim causal explanations that are not supported by the available data.",
+    "failure_type": "causality_grounding"
+  },
+  {
+    "id": 6,
+    "name": "Definition and overall abandonment",
+    "question": "What does checkout abandonment mean in this project, and what is the current overall checkout abandonment rate?",
+    "expected_tools": [
+        "search_project_knowledge",
+        "get_checkout_abandonment"
+    ],
+    "expected_behavior": "Use project knowledge to explain the definition and analytics data to report the current overall checkout abandonment rate.",
+    "failure_type": "mixed_tool_selection"
+    },
+    {
+    "id": 7,
+    "name": "Device abandonment and definition",
+    "question": "What is the checkout abandonment rate by device, and how is checkout abandonment defined in this project?",
+    "expected_tools": [
+        "get_abandonment_by_device",
+        "search_project_knowledge"
+    ],
+    "expected_behavior": "Use analytics data for the device-level abandonment rates and project knowledge for the definition of checkout abandonment.",
+    "failure_type": "mixed_tool_selection"
+    }
+]
