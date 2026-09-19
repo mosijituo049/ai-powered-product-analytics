@@ -1,5 +1,6 @@
 from google import genai
 from google.genai import types
+import os
 
 from ai.config import GEMINI_API_KEY
 from ai.providers.base import LLMProvider
@@ -9,12 +10,19 @@ from ai.providers.types import LLMResponse, ToolCall
 #MODEL_NAME = "gemini-3.6-flash"
 MODEL_NAME = "gemini-3.5-flash-lite"
 
+EMBEDDING_MODEL = os.getenv(
+    "EMBEDDING_MODEL",
+    "gemini-embedding-001",
+)
+
 def clean_gemini_schema(schema: dict) -> dict:
     schema = dict(schema)
     schema.pop("additionalProperties", None)
     return schema
 
 class GeminiProvider(LLMProvider):
+
+    embedding_model_name = EMBEDDING_MODEL
 
     def __init__(self):
         self.client = genai.Client(api_key=GEMINI_API_KEY)
@@ -181,3 +189,33 @@ class GeminiProvider(LLMProvider):
             tool_calls=tool_calls,
             raw_message=raw_message,
         )
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        embeddings = []
+
+        for text in texts:
+            response = self.client.models.embed_content(
+                model=EMBEDDING_MODEL,
+                contents=types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_text(text=text)
+                    ],
+                ),
+            )
+
+            if not response.embeddings:
+                raise ValueError(
+                    "Gemini returned no embedding."
+                )
+
+            values = response.embeddings[0].values
+
+            if values is None:
+                raise ValueError(
+                    "Gemini returned an embedding without values."
+                )
+
+            embeddings.append(list(values))
+
+        return embeddings

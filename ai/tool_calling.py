@@ -7,7 +7,7 @@ from ai.prompts import SYSTEM_PROMPT
 def run_agent(
     question: str,
     tools,
-    max_iterations: int = 3,
+    max_iterations: int = 5,
 ):
     """
     Run the agent loop using the configured LLM provider.

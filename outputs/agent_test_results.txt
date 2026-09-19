@@ -1,0 +1,91 @@
+
+======================================================================
+TEST CASE 1: Overall checkout abandonment
+======================================================================
+
+Question:
+What is the overall checkout abandonment rate?
+
+Final response:
+The overall checkout abandonment rate is 56.33%. This means that out of the total number of sessions initiated for a purchase (11088), 56.33% of them were abandoned before completion.
+
+======================================================================
+TEST CASE 2: Highest abandonment device
+======================================================================
+
+Question:
+Which device category has the highest checkout abandonment rate, and what is the overall checkout abandonment rate?
+
+Final response:
+The device category with the highest checkout abandonment rate is desktop, with an abandonment rate of 56.95%. 
+
+The overall checkout abandonment rate is 56.33%, indicating that approximately 56.33% of all checkouts are abandoned.
+
+======================================================================
+TEST CASE 3: Channel abandonment
+======================================================================
+
+Question:
+What is the checkout abandonment rate by acquisition channel?
+
+Final response:
+The checkout abandonment rate by acquisition channel is as follows:
+
+- Partner: 100%
+- Referral: 100%
+- YouTube: 100%
+- Newsletter: 66.67%
+- Direct: 65.99%
+- Other: 65.78%
+- Google: 52.77%
+- Unknown: 43.5%
+
+======================================================================
+TEST CASE 4: Definition question
+======================================================================
+
+Question:
+What does checkout abandonment mean in e-commerce?
+
+Final response:
+Checkout abandonment refers to the percentage of customers who start the checkout process but do not complete a purchase on an e-commerce website. In other words, it's the number of cart contents left behind by users without making a payment or completing their purchase.
+
+In this case, our data shows that:
+
+* There were 11,088 checkout sessions.
+* Only 4842 of those sessions resulted in a purchase (i.e., the customer completed the checkout process).
+* Meanwhile, 6246 customers abandoned their shopping carts without making a payment (leaving 5,542 cart contents behind).
+
+The abandonment rate is approximately 56.33%, indicating that nearly six out of ten customers who began the checkout process did not ultimately complete a purchase.
+
+This data can be used to identify areas for improvement in the e-commerce website's checkout process, such as reducing friction or increasing trust with customers.
+
+======================================================================
+TEST CASE 5: Causal question
+======================================================================
+
+Question:
+Why are users abandoning checkout?
+
+Final response:
+Based on the data from Google Analytics 4 (GA4), here are some insights into why users might be abandoning checkout:
+
+* The overall abandonment rate across all acquisition channels is around 52.77%.
+* Some channels have significantly higher abandonment rates, such as:
+	+ YouTube: 100%
+	+ Referral: 100%
+	+ Partner: 100%
+* Channels with lower abandonment rates include:
+	+ Google: 52.77%
+	+ Direct: 65.99% (note: this might be due to the fact that users who find the product directly on the website are more likely to complete the purchase)
+	+ Newsletter: 66.67% (this could indicate that newsletter subscribers are more engaged and less likely to abandon checkout)
+
+It's essential to note that these findings are based on the data available in GA4 and might not reflect the actual reasons for abandonment. Further analysis, such as A/B testing or user feedback, would be necessary to determine the root causes of checkout abandonment.
+
+To better understand this issue, I recommend exploring additional GA4 reports, such as:
+
+* Checkout behavior: This report provides insights into how users interact with your checkout process.
+* User behavior: This report shows how users behave on your website, which can help identify patterns leading up to abandonments.
+* Conversion rate optimization (CRO) analysis: CRO tools like Optimize or VWO can provide more detailed information about what's causing users to abandon the checkout process.
+
+Please let me know if you'd like to explore any of these reports further or discuss how to improve your checkout experience.

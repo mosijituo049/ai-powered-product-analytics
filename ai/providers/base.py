@@ -22,3 +22,8 @@ class LLMProvider(ABC):
         and tool definitions.
         """
         pass
+
+    @abstractmethod
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        """Generate embeddings for a list of texts."""
+        pass

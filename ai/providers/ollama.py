@@ -1,15 +1,30 @@
 import requests
 import json
+import os
 
 from ai.providers.base import LLMProvider
 from ai.providers.types import LLMResponse, ToolCall
 
 
-OLLAMA_URL = "http://localhost:11434/api/chat"
+OLLAMA_URL = os.getenv(
+    "OLLAMA_URL",
+    "http://localhost:11434/api/chat",
+)
 MODEL_NAME = "llama3.2"
+
+OLLAMA_EMBED_URL = os.getenv(
+    "OLLAMA_EMBED_URL",
+    "http://localhost:11434/api/embed",
+)
+EMBEDDING_MODEL = os.getenv(
+    "EMBEDDING_MODEL",
+    "nomic-embed-text",
+)
 
 
 class OllamaProvider(LLMProvider):
+
+    embedding_model_name = EMBEDDING_MODEL
 
     def generate(self, prompt: str) -> str:
         response = requests.post(
@@ -100,3 +115,19 @@ class OllamaProvider(LLMProvider):
             tool_calls=tool_calls,
             raw_message=message,
         )
+
+    def embed(self, texts: list[str]) -> list[list[float]]:
+        response = requests.post(
+            OLLAMA_EMBED_URL,
+            json={
+                "model": EMBEDDING_MODEL,
+                "input": texts,
+            },
+            timeout=120,
+        )
+
+        response.raise_for_status()
+
+        data = response.json()
+
+        return data["embeddings"]

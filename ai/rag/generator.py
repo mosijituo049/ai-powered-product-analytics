@@ -1,8 +1,27 @@
 from ai.llm import get_llm_provider
 from ai.rag.retriever import retrieve
-from ai.rag.vector_store import load_embeddings
+from ai.rag.vector_store import load_embeddings,save_embeddings
 from ai.prompts import RAG_CONTEXT_INSTRUCTION
+from ai.rag.embedding import embed_chunks
+from ai.rag.loader import load_documents
+from ai.rag.chunker import chunk_documents
 
+def get_embeddings(embedding_model: str) -> list[dict]:
+    embedded_chunks = load_embeddings(embedding_model)
+
+    if embedded_chunks:
+        return embedded_chunks
+
+    documents = load_documents()
+    chunks = chunk_documents(documents)
+    embedded_chunks = embed_chunks(chunks)
+
+    save_embeddings(
+        embedded_chunks,
+        embedding_model,
+    )
+
+    return embedded_chunks
 
 def build_context(results: list[dict]) -> str:
     context_parts = []
@@ -22,7 +41,10 @@ def build_context(results: list[dict]) -> str:
 
 
 def generate_answer(question: str, top_k: int = 3) -> str:
-    embedded_chunks = load_embeddings()
+    provider = get_llm_provider()
+    embedding_model = provider.embedding_model_name
+
+    embedded_chunks = get_embeddings(embedding_model)
 
     results = retrieve(
         question,
@@ -43,8 +65,6 @@ def generate_answer(question: str, top_k: int = 3) -> str:
 
     Answer:
     """
-
-    provider = get_llm_provider()
 
     return provider.generate(prompt)
 

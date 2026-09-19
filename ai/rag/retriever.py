@@ -56,7 +56,14 @@ def retrieve(
     return results[:top_k]
 
 if __name__ == "__main__":
-    embedded_chunks = load_embeddings()
+    from ai.llm import get_llm_provider
+
+    provider = get_llm_provider()
+    embedding_model = provider.embedding_model_name
+
+    embedded_chunks = load_embeddings(
+        embedding_model
+    )
 
     query = "What is the checkout abandonment rate?"
 
