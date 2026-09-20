@@ -47,21 +47,89 @@
     "name": "Definition and overall abandonment",
     "question": "What does checkout abandonment mean in this project, and what is the current overall checkout abandonment rate?",
     "expected_tools": [
-        "search_project_knowledge",
-        "get_checkout_abandonment"
+      "search_project_knowledge",
+      "get_checkout_abandonment"
     ],
     "expected_behavior": "Use project knowledge to explain the definition and analytics data to report the current overall checkout abandonment rate.",
     "failure_type": "mixed_tool_selection"
-    },
-    {
+  },
+  {
     "id": 7,
     "name": "Device abandonment and definition",
     "question": "What is the checkout abandonment rate by device, and how is checkout abandonment defined in this project?",
     "expected_tools": [
-        "get_abandonment_by_device",
-        "search_project_knowledge"
+      "get_abandonment_by_device",
+      "search_project_knowledge"
     ],
     "expected_behavior": "Use analytics data for the device-level abandonment rates and project knowledge for the definition of checkout abandonment.",
     "failure_type": "mixed_tool_selection"
-    }
+  },
+
+  {
+    "id": 8,
+    "name": "Purchase prediction",
+    "question": "Analyze the purchase intent for session 6636007571.",
+    "expected_tools": ["get_purchase_prediction"],
+    "expected_behavior": "Return the purchase prediction and purchase probability using the prediction tool data.",
+    "failure_type": "prediction_grounding"
+  },
+  {
+    "id": 9,
+    "name": "Derived metric grounding",
+    "question": "Analyze session 6636007571 and explain its key behavioral signals.",
+    "expected_tools": ["get_purchase_prediction"],
+    "expected_behavior": "Use the derived metrics returned by the prediction tool as authoritative values. Do not recalculate checkout_ratio from begin_checkout and add_to_cart.",
+    "failure_type": "derived_metric_grounding"
+  },
+  {
+    "id": 10,
+    "name": "Non-existent session",
+    "question": "Analyze the purchase intent for session 999999999999.",
+    "expected_tools": ["get_purchase_prediction"],
+    "expected_behavior": "Do not invent a prediction or probability when the session is not available. Clearly report that the session data could not be found.",
+    "failure_type": "hallucination"
+  },
+  {
+    "id": 11,
+    "name": "Unsupported breakdown",
+    "question": "What is the checkout abandonment rate for users in Japan?",
+    "expected_tools": [],
+    "expected_behavior": "Do not invent a country-level abandonment rate when the available analytics tools do not provide this breakdown.",
+    "failure_type": "unsupported_metric"
+  },
+  {
+    "id": 12,
+    "name": "Device and channel comparison",
+    "question": "Compare checkout abandonment across device categories and acquisition channels.",
+    "expected_tools": [
+      "get_abandonment_by_device",
+      "get_abandonment_by_channel"
+    ],
+    "expected_behavior": "Use both analytics tools and accurately report the returned device-level and channel-level abandonment rates.",
+    "failure_type": "multi_tool_selection"
+  },
+  {
+    "id": 13,
+    "name": "Funnel analysis",
+    "question": "Where is the largest drop-off in the checkout funnel?",
+    "expected_tools": ["get_funnel_metrics"],
+    "expected_behavior": "Use funnel metrics to identify the largest stage drop-off and report the corresponding metric.",
+    "failure_type": "numerical_reasoning"
+  },
+  {
+    "id": 14,
+    "name": "Project knowledge",
+    "question": "What is the main business question of this project?",
+    "expected_tools": ["search_project_knowledge"],
+    "expected_behavior": "Answer using project-specific knowledge and do not invent project information.",
+    "failure_type": "rag_grounding"
+  },
+  {
+    "id": 15,
+    "name": "Unsupported general question",
+    "question": "What is the average checkout abandonment rate for e-commerce websites worldwide?",
+    "expected_tools": [],
+    "expected_behavior": "Do not invent an external benchmark. Clearly distinguish information available in the project from information that is outside the project knowledge base.",
+    "failure_type": "rag_boundary"
+  }
 ]
