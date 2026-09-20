@@ -13,25 +13,13 @@ from ai.tool_calling import run_agent
 from ai.tools.schemas import TOOL_SCHEMAS
 
 tools = list(TOOL_SCHEMAS.values())
-
-prediction_df = load_purchase_prediction()
-
 BASE_DIR = Path(__file__).resolve().parents[2]
-
 MODEL_PATH = BASE_DIR / "models" / "tuned_rf_model.pkl"
-
-model = joblib.load(MODEL_PATH)
-
 OUTPUT_DIR = BASE_DIR / "outputs"
 
-comparison_df = pd.read_csv(
-    OUTPUT_DIR / "model_comparison.csv"
-)
-comparison_df = comparison_df.round(3)
-
-feature_df = pd.read_csv(
-    OUTPUT_DIR / "feature_importance.csv"
-)
+@st.cache_resource(show_spinner=False)
+def load_prediction_model():
+    return joblib.load(MODEL_PATH)
 
 load_css()
 
@@ -43,11 +31,25 @@ their session behaviour.
 """
 )
 
+with st.spinner("🤖 Loading prediction data..."):
+    prediction_df = load_purchase_prediction()
+    model = load_prediction_model()
+
+
+comparison_df = pd.read_csv(
+    OUTPUT_DIR / "model_comparison.csv"
+)
+comparison_df = comparison_df.round(3)
+
+feature_df = pd.read_csv(
+    OUTPUT_DIR / "feature_importance.csv"
+)
+
 st.divider()
 
-best_model = comparison_df.loc[
-    comparison_df["ROC-AUC"].idxmax()
-]
+deployed_model = comparison_df[
+    comparison_df["Model"] == "Tuned Random Forest"
+].iloc[0]
 
 with st.container():
     st.subheader("📊 Model Performance")
@@ -56,26 +58,26 @@ with st.container():
 
     col1.metric(
         "Accuracy",
-        f"{best_model['Accuracy']:.3f}"
+        f"{deployed_model['Accuracy']:.3f}"
     )
 
     col2.metric(
         "Precision",
-        f"{best_model['Precision']:.3f}"
+        f"{deployed_model['Precision']:.3f}"
     )
 
     col3.metric(
         "Recall",
-        f"{best_model['Recall']:.3f}"
+        f"{deployed_model['Recall']:.3f}"
     )
 
     col4.metric(
         "ROC-AUC",
-        f"{best_model['ROC-AUC']:.3f}"
+        f"{deployed_model['ROC-AUC']:.3f}"
     )
 
     st.success(
-        f"🏆 Best Model: {best_model['Model']}"
+        f"🏆 Deployed Model: {deployed_model['Model']}"
     )
 
 st.divider()
@@ -166,6 +168,7 @@ with st.container():
     """)
 
     probability = model.predict_proba(prediction_df)[:, 1]
+
     prediction_df["purchase_probability"] = probability
     prediction_df["intent"] = pd.cut(
         prediction_df["purchase_probability"],

@@ -44,13 +44,13 @@ def load_checkout_distribution():
         queries.get_checkout_abandonment_distribution()
     )
 
-@st.cache_data(ttl=600,show_spinner=False)
+@st.cache_data(ttl=3600,show_spinner=False)
 def load_checkout_kpis():
     return query_to_dataframe(
         queries.get_checkout_kpis()
     )
 
-@st.cache_data(ttl=600,show_spinner=False)
+@st.cache_data(ttl=3600,show_spinner=False)
 def load_checkout_funnel():
     return query_to_dataframe(
         queries.get_checkout_funnel()
@@ -91,7 +91,7 @@ def load_duplicate_summary():
         queries.get_duplicate_summary()
     )
 
-@st.cache_data(ttl=600,show_spinner=False)
+@st.cache_data(ttl=3600,show_spinner=False)
 def load_funnel():
     return query_to_dataframe(
         queries.get_funnel_data()
@@ -101,13 +101,13 @@ def load_funnel():
 def load_funnel_metrics():
     return query_to_dataframe(queries.get_funnel_metrics())
 
-@st.cache_data(ttl=600,show_spinner=False)
+@st.cache_data(ttl=3600,show_spinner=False)
 def load_checkout_abandonment():
     return query_to_dataframe(
         queries.get_checkout_abandonment_data()
     )
 
-@st.cache_data(ttl=600,show_spinner=False)
+@st.cache_data(ttl=3600,show_spinner=False)
 def load_purchase_prediction():
     return query_to_dataframe(
         queries.get_purchase_prediction_data()

@@ -11,14 +11,12 @@ from src.services import (
 
 load_css()
 
-checkout_abandonment = load_checkout_abandonment()
-
-checkout_kpi = load_checkout_kpis()
-
-checkout_funnel = load_checkout_funnel()
-
-
 st.title("🛒 Checkout Analysis")
+
+with st.spinner("🛒 Loading checkout analytics..."):
+    checkout_abandonment = load_checkout_abandonment()
+    checkout_kpi = load_checkout_kpis()
+    checkout_funnel = load_checkout_funnel()
 
 st.divider()
 

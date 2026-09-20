@@ -1,7 +1,5 @@
 import pandas as pd
 
-#start_time = time.perf_counter()
-
 import streamlit as st
 import plotly.express as px
 
@@ -9,21 +7,74 @@ from utils import load_css
 from src.services import load_home_data
 
 
+# =========================
+# Page configuration
+# =========================
+
+st.set_page_config(
+    page_title="GA4 Product Analytics",
+    page_icon="📊",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
 load_css()
 
 
-home = load_home_data()
+# =========================
+# Header
+# =========================
+
+st.title("📊 GA4 Product Analytics Platform")
+
+st.markdown("""
+### Business Question
+
+**What drives checkout abandonment, and how can we identify high-intent users before they leave?**
+
+This dashboard analyses user behaviour across the purchase funnel,
+identifies key conversion bottlenecks, and applies machine learning
+to predict purchase intent.
+""")
+
+st.caption(
+    """
+    Monitor user behaviour, identify conversion bottlenecks,
+    and predict purchase intent.
+    """
+)
+
+st.divider()
+
+
+# =========================
+# Load data
+# =========================
+
+with st.spinner("📊 Loading analytics data..."):
+    home = load_home_data()
+
+
+# =========================
+# Prepare data
+# =========================
 
 overview_data = home[home["section"] == "overview"]
+
 funnel = home[home["section"] == "funnel"].copy()
+
 device = home[home["section"] == "device"].copy()
+
 country = home[home["section"] == "country"].copy()
+
 source = home[home["section"] == "source"].copy()
+
 
 overview = {
     row["dimension"]: row["value"]
     for _, row in overview_data.iterrows()
 }
+
 
 funnel = funnel.rename(
     columns={
@@ -54,6 +105,7 @@ source = source.rename(
     }
 )
 
+
 purchase = funnel.loc[
     funnel["stage"] == "Purchase",
     "sessions"
@@ -64,63 +116,27 @@ conversion = funnel.loc[
     "overall_conversion_rate"
 ].iloc[0]
 
-st.set_page_config(
-    page_title="GA4 Product Analytics",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
 
-st.title("📊 GA4 Product Analytics Platform")
+# =========================
+# Executive Summary
+# =========================
 
-st.markdown("""
-### Business Question
-
-**What drives checkout abandonment, and how can we identify high-intent users before they leave?**
-
-This dashboard analyses user behaviour across the purchase funnel,
-identifies key conversion bottlenecks, and applies machine learning
-to predict purchase intent.
-""")
-
-st.caption(
-    """
-    Monitor user behaviour, identify conversion bottlenecks,
-    and predict purchase intent.
-    """
-)
-
-st.divider()
-
-#Executive Summary
 with st.container():
     st.subheader("Executive Summary")
 
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        st.metric(
-            "Users",
-            f"{int(overview['total_users']):,}"
-        )
+        st.metric("Users", f"{int(overview['total_users']):,}")
 
     with col2:
-        st.metric(
-            "Sessions",
-            f"{int(overview['total_sessions']):,}"
-        )
+        st.metric("Sessions", f"{int(overview['total_sessions']):,}")
 
     with col3:
-        st.metric(
-            "Purchases",
-            f"{int(purchase):,}"
-        )
+        st.metric("Purchases", f"{int(purchase):,}")
 
     with col4:
-        st.metric(
-            "Conversion",
-            f"{conversion:.2f}%"
-        )
+        st.metric("Conversion", f"{conversion:.2f}%")
 
 st.divider()
 

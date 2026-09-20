@@ -2,15 +2,21 @@ import streamlit as st
 import plotly.express as px
 
 from utils import load_css
-from src.services import (
-    load_funnel
-)
+from src.services import load_funnel
+
+
+#st.set_page_config(
+#    page_title="Funnel Analysis",
+#    page_icon="📈",
+#    layout="wide"
+#)
 
 load_css()
 
-funnel = load_funnel()
-
 st.title("📈 Funnel Analysis")
+
+with st.spinner("📈 Loading funnel data..."):
+    funnel = load_funnel()
 
 st.divider()
 
