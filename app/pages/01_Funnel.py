@@ -87,7 +87,7 @@ with st.container():
 
         st.plotly_chart(
             fig_funnel,
-            use_container_width=True
+            width="stretch"
         )
     
     with col2:
@@ -115,13 +115,13 @@ with st.container():
 
         st.plotly_chart(
             fig_dropoff,
-            use_container_width=True
+            width="stretch"
         )
         
     st.dataframe(
         funnel,
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
 

@@ -85,7 +85,7 @@ with st.container():
 
     st.dataframe(
         comparison_df,
-        use_container_width=True,
+        width="stretch",
         hide_index=True
     )
 
@@ -143,7 +143,7 @@ with st.container():
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        width="stretch"
     )
 
     st.info(
@@ -207,7 +207,7 @@ with st.container():
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        width="stretch"
     )
 
 st.divider()
@@ -262,7 +262,7 @@ with st.container():
 
         if st.button(
             "🚀 Analyze Session",
-            use_container_width=True
+            width="stretch"
         ):
 
             question = f"""

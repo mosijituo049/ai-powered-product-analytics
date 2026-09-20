@@ -128,7 +128,7 @@ with st.container():
 
     st.plotly_chart(
         fig,
-        use_container_width=True
+        width="stretch"
     )
 
     funnel_df["Conversion Rate"] = (
@@ -139,7 +139,7 @@ with st.container():
     st.dataframe(
         funnel_df,
         hide_index=True,
-        use_container_width=True
+        width="stretch"
     )
 
 #Checkout Abandonment Analysis
@@ -182,7 +182,7 @@ with st.container():
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
     
     with right_col:
@@ -208,7 +208,7 @@ with st.container():
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
 
     st.markdown("#### Key Findings")
@@ -266,12 +266,12 @@ with st.container():
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
         st.dataframe(
             device_summary,
             hide_index=True,
-            use_container_width=True
+            width="stretch"
         )
 
     with tab2:
@@ -303,7 +303,7 @@ with st.container():
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
 
     with tab3:
@@ -335,7 +335,7 @@ with st.container():
 
         st.plotly_chart(
             fig,
-            use_container_width=True
+            width="stretch"
         )
 
 #Insights

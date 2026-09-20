@@ -61,7 +61,7 @@ for i, question in enumerate(example_questions):
 
         if st.button(
             question,
-            use_container_width=True,
+            width="stretch",
             key=f"example_{i}",
         ):
             st.session_state.ai_question = question

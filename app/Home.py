@@ -126,7 +126,7 @@ with st.container():
 
         st.plotly_chart(
             fig_funnel,
-            use_container_width=True
+            width="stretch"
         )
 
     with col6:
@@ -139,7 +139,7 @@ with st.container():
 
         st.plotly_chart(
             fig_device,
-            use_container_width=True
+            width="stretch"
         )
 
     col7,col8 = st.columns(2)
@@ -157,7 +157,7 @@ with st.container():
             text="sessions"
         )
 
-        st.plotly_chart(fig_traffic, use_container_width=True)
+        st.plotly_chart(fig_traffic, width="stretch")
 
     with col8:
         country_top = (
@@ -179,7 +179,7 @@ with st.container():
             height=450
         )
 
-        st.plotly_chart(fig_country, use_container_width=True)
+        st.plotly_chart(fig_country, width="stretch")
 
 st.divider()
 
