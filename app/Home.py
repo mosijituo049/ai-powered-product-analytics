@@ -1,22 +1,58 @@
+import pandas as pd
+
+#start_time = time.perf_counter()
+
 import streamlit as st
 import plotly.express as px
 
 from utils import load_css
-from src.services import (
-    load_dataset_overview,
-    load_funnel,
-    load_device_distribution,
-    load_country_distribution,
-    load_source_distribution
-)
+from src.services import load_home_data
+
 
 load_css()
 
-overview = load_dataset_overview()
-funnel = load_funnel()
-device = load_device_distribution()
-country = load_country_distribution()
-source = load_source_distribution()
+
+home = load_home_data()
+
+overview_data = home[home["section"] == "overview"]
+funnel = home[home["section"] == "funnel"].copy()
+device = home[home["section"] == "device"].copy()
+country = home[home["section"] == "country"].copy()
+source = home[home["section"] == "source"].copy()
+
+overview = {
+    row["dimension"]: row["value"]
+    for _, row in overview_data.iterrows()
+}
+
+funnel = funnel.rename(
+    columns={
+        "dimension": "stage",
+        "value": "sessions",
+        "rate": "overall_conversion_rate"
+    }
+)
+
+device = device.rename(
+    columns={
+        "dimension": "device_category",
+        "value": "events"
+    }
+)
+
+country = country.rename(
+    columns={
+        "dimension": "country",
+        "value": "sessions"
+    }
+)
+
+source = source.rename(
+    columns={
+        "dimension": "acquisition_channel",
+        "value": "sessions"
+    }
+)
 
 purchase = funnel.loc[
     funnel["stage"] == "Purchase",
@@ -63,27 +99,24 @@ with st.container():
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-
         st.metric(
             "Users",
-            f"{overview.iloc[0]['total_users']:,}"
+            f"{int(overview['total_users']):,}"
         )
 
     with col2:
-
         st.metric(
             "Sessions",
-            f"{overview.iloc[0]['total_sessions']:,}"
+            f"{int(overview['total_sessions']):,}"
         )
 
     with col3:
         st.metric(
             "Purchases",
-            f"{purchase:,}"
+            f"{int(purchase):,}"
         )
 
     with col4:
-
         st.metric(
             "Conversion",
             f"{conversion:.2f}%"
@@ -118,6 +151,22 @@ with st.container():
     col5,col6 = st.columns(2)
 
     with col5:
+        funnel_order = [
+            "Page View",
+            "View Item",
+            "Add to Cart",
+            "Begin Checkout",
+            "Purchase"
+        ]
+
+        funnel["stage"] = pd.Categorical(
+            funnel["stage"],
+            categories=funnel_order,
+            ordered=True
+        )
+
+        funnel = funnel.sort_values("stage")
+
         fig_funnel = px.funnel(
             funnel,
             y="stage",

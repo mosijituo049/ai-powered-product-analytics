@@ -1,14 +1,10 @@
 from src.config import PROJECT_ID, DATASET_ID
 
-def get_dataset_overview():
+def get_home_data():
     return f"""
-    SELECT
-        COUNT(*) AS total_events,
-        COUNT(DISTINCT user_pseudo_id) AS total_users,
-        COUNT(DISTINCT ga_session_id) AS total_sessions,
-        MIN(event_date) AS start_date,
-        MAX(event_date) AS end_date
-    FROM `{PROJECT_ID}.{DATASET_ID}.stg_events`
+    SELECT *
+    FROM `{PROJECT_ID}.{DATASET_ID}.mart_home`
+    ORDER BY section, dimension
     """
 
 def get_sessions():
@@ -26,36 +22,6 @@ def get_event_distribution():
     FROM `{PROJECT_ID}.{DATASET_ID}.stg_events`
     GROUP BY event_name
     ORDER BY event_count DESC
-    """
-
-def get_device_distribution():
-    return f"""
-    SELECT
-        device_category,
-        COUNT(*) AS events
-    FROM `{PROJECT_ID}.{DATASET_ID}.stg_events`
-    GROUP BY device_category
-    ORDER BY events DESC
-    """
-
-def get_source_distribution():
-    return f"""
-    SELECT
-        acquisition_channel,
-        COUNT(*) AS sessions
-    FROM `{PROJECT_ID}.{DATASET_ID}.mart_purchase_prediction`
-    GROUP BY acquisition_channel
-    ORDER BY sessions DESC
-    """
-
-def get_country_distribution():
-    return f"""
-    SELECT
-        country,
-        COUNT(*) AS sessions
-    FROM `{PROJECT_ID}.{DATASET_ID}.stg_events`
-    GROUP BY country
-    ORDER BY sessions DESC
     """
 
 def get_session_summary():

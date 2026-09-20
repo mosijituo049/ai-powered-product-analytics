@@ -5,41 +5,16 @@ import streamlit as st
 # ============================================================
 # Data Understanding
 # ============================================================
-@st.cache_data(ttl=600,show_spinner=False)
-def load_dataset_overview():
-    """
-    Load dataset overview.
-    """
-    return query_to_dataframe(
-        queries.get_dataset_overview()
-    )
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def load_home_data():
+    return query_to_dataframe(queries.get_home_data())
 
 @st.cache_data(ttl=600,show_spinner=False)
 def load_event_distribution():
 
     return query_to_dataframe(
         queries.get_event_distribution()
-    )
-
-@st.cache_data(ttl=600,show_spinner=False)
-def load_device_distribution():
-
-    return query_to_dataframe(
-        queries.get_device_distribution()
-    )
-
-@st.cache_data(ttl=600,show_spinner=False)
-def load_source_distribution():
-    """Load traffic source distribution."""
-    return query_to_dataframe(
-        queries.get_source_distribution()
-    )
-
-@st.cache_data(ttl=600,show_spinner=False)
-def load_country_distribution():
-    """Load country distribution."""
-    return query_to_dataframe(
-        queries.get_country_distribution()
     )
 
 def load_sessions():
